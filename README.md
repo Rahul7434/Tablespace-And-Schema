@@ -91,6 +91,9 @@ Example:
 7. pg_toast
     • Description: The pg_toast schema is used internally by PostgreSQL to store large objects that exceed a certain size limit. When a table has large text or binary data (like large TEXT or BYTEA fields), PostgreSQL may store these in pg_toast to manage space efficiently.
     • Usage: It's generally not accessed by users directly but is important for how PostgreSQL manages large data internally.
+   ```
+   If the column sizeis 2KB postgresqlautomaticallymoves it to toast table.
+   ```
    
 9. pg_temp_nnnn (Temporary Schemas)
     • Description: When you create temporary tables, PostgreSQL automatically creates temporary schemas (like pg_temp_1234). Each session has its own temporary schema, where all temporary tables reside.
