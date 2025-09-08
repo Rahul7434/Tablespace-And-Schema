@@ -1,6 +1,7 @@
-# Tablespace-And-Schema
+# Tablespace-And-Schema-and-MVCC
 
-### TableSpace:- 
+# 1.TableSpace:- 
+```
  - tablespace in PostgreSQL is a storage location where database objects like tables, indexes, and other data files are stored.
   - an additional data area outside the base directory. 
     1. Tablespace: A storage location for database objects.
@@ -19,16 +20,14 @@
  - When a tablespace is created, PostgreSQL internally creates a symbolic link in the pg_tblspc directory that points to the actual location on the filesystem.
  - pg_tablespace System Catalog
  - pg_tablespace is a system catalog (or system table) in PostgreSQL that stores metadata about tablespaces. It includes information like tablespace name, owner, and location.
-```
+
   Expand Storage Easily: If a particular disk is running out of space, you can create a new tablespace on a larger or less used disk and move objects there without interrupting database operations.
   Selective Backup: You can back up only specific tablespaces that contain critical data rather than backing up the entire database, making the process faster and more efficient.
   Recovery Strategies: During recovery, you can restore critical tablespaces first, allowing partial recovery if full recovery would take too long.
   Use Different Disk Types: Different types of data can be stored on appropriate storage media (e.g., using SSDs for frequently accessed data and HDDs for archival data).
   Free Up Space Easily: By moving data between tablespaces, you can free up space on specific storage devices without complex data migrations.
-```
 
 Examples:- 
-```
   Create tablespace:-
   [ CREATE TABLESPACE my_space LOCATION '/path/to/storage/location'; ]
   Change owner:
@@ -46,17 +45,18 @@ Examples:-
   pg_tablespace: Contains information about tablespaces.
     [SELECT * FROM pg_tablespace;]
 
-```
-```
+
 - Key columns in pg_tablespace:
     • spcname: Name of the tablespace.
     • spcowner: OID of the owner (role).
     • spclocation: The directory location of the tablespace (older versions).
     • spcacl: Access control list (permissions).
 ```
-  --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---
+---
 
-#### Schema:-
+# 2.Schema:-
+```
 - In PostgreSQL, a schema is a namespace that contains database objects like tables, views, functions, indexes, sequences, etc. It helps organize these objects within a database, allowing for better management and control over their usage. Schemas allow different users or applications to use the same names for different tables, functions, or other objects without conflict.
 Key Features of Schemas in PostgreSQL:
     1. Logical Grouping: Schemas allow you to group related tables and other objects logically.
@@ -68,32 +68,32 @@ Key Features of Schemas in PostgreSQL:
     • Description: The public schema is the default schema that every PostgreSQL database comes with. All database users can access the public schema unless specific permissions are modified.
     • Default Behavior: Any object created without explicitly specifying a schema will be placed in the public schema.
     • Permissions: By default, all users can create objects in the public schema, but this can be changed by altering privileges.
-```
+
 Example:
 CREATE TABLE my_table (id SERIAL PRIMARY KEY);
 -- This table will be created in the public schema by default:
 -- public.my_table
-```
+
 3. information_schema
     • Description: The information_schema schema contains read-only views that provide metadata about the database, such as tables, columns, data types, and constraints.
     • Usage: This schema is used to query system catalog information in a standardized way, making it useful for inspecting the structure of the database.
-```
+
 Example:
 [SELECT * FROM information_schema.tables;]
-```
+
 5. pg_catalog
     • Description: The pg_catalog schema is another system schema that contains PostgreSQL's system tables and functions. It holds metadata related to database internals such as tables, columns, indexes, and functions.
     • Usage: Internally used by PostgreSQL, but advanced users can also query pg_catalog for more detailed system-level information than information_schema provides.
-```
+
 Example:
 [SELECT * FROM pg_catalog.pg_tables;]
-```
+
 7. pg_toast
     • Description: The pg_toast schema is used internally by PostgreSQL to store large objects that exceed a certain size limit. When a table has large text or binary data (like large TEXT or BYTEA fields), PostgreSQL may store these in pg_toast to manage space efficiently.
     • Usage: It's generally not accessed by users directly but is important for how PostgreSQL manages large data internally.
-   ```
+   
    If the column sizeis 2KB postgresqlautomaticallymoves it to toast table.
-   ```
+   
    
 9. pg_temp_nnnn (Temporary Schemas)
     • Description: When you create temporary tables, PostgreSQL automatically creates temporary schemas (like pg_temp_1234). Each session has its own temporary schema, where all temporary tables reside.
@@ -103,44 +103,40 @@ Example:
     • Description: Similar to pg_toast, the pg_toast_temp_nnnn schemas are used internally for managing large objects for temporary tables. Like pg_temp_nnnn, these schemas are session-specific.
 Managing Default Schemas
     • Search Path: PostgreSQL uses a search path to determine which schemas to search when you reference an object without specifying the schema. By default, the search path includes public, pg_catalog, and other system schemas.
-``
 To check the current search path:
 SHOW search_path;
 Example output:
 search_path 
 --------------
 "$user", public
-```
+
 - In this case, $user means PostgreSQL will first look for a schema that matches the current user’s name. If no such schema exists, it defaults to the public schema.
 - Changing the Search Path: You can adjust the search path for your session or permanently for a role or database.
-```
+
   SET search_path TO schema1, schema2;
-```
+
 - In summary, PostgreSQL provides a set of default schemas for system management (pg_catalog, information_schema, pg_toast) and user access (public). You can manage how these schemas interact with your objects using the search path and schema privileges.
 - Syntax for Schema Management:-
 --------------------------------------------------
 1. Creating a Schema:
-```
 CREATE SCHEMA schema_name;
 Example:
 CREATE SCHEMA sales;
-```
+
 ----------------------------------------------------------
 2. Creating a Schema Owned by a User:
-```
 CREATE SCHEMA schema_name AUTHORIZATION user_name;
 Example:
 CREATE SCHEMA sales AUTHORIZATION john;
-```
 ---------------------------------------------------------
 3. Listing Schemas:
-```
+
 SELECT schema_name 
 FROM information_schema.schemata;
-```
+
 ------------------------------------------------------
 4. Creating an Object in a Specific Schema:
-```
+
 CREATE TABLE schema_name.table_name (
    column_name data_type
 );
@@ -149,28 +145,28 @@ CREATE TABLE sales.customers (
    customer_id SERIAL PRIMARY KEY,
    name VARCHAR(100)
 );
-```
+
 ------------------------------------------------------
 5. Setting a Search Path (Schema Priority):
-```
+
 You can define the search path so that PostgreSQL knows where to look for objects.
 SET search_path TO schema_name;
 Example:
 SET search_path TO sales;
 This will make the sales schema the default for subsequent object references.
-```
+
 -------------------------------------------------------
 6. Dropping a Schema:
-```
+
 DROP SCHEMA schema_name CASCADE;
     • CASCADE: Automatically drops all objects within the schema.
     • RESTRICT: Prevents the schema from being dropped if it contains any objects (this is the default).
 Example:
 DROP SCHEMA sales CASCADE;
-```
+
 -------------------------------------------------------
 7. Schema Privileges:
-```
+
 You can manage schema permissions using GRANT and REVOKE commands.
     • Granting permissions on a schema:
 GRANT USAGE ON SCHEMA schema_name TO user_name;
@@ -196,9 +192,9 @@ Multiple transaction can happen with database at the same time without blocking 
 5.RollBack Transaction -> New row version is discarded.
 6.Delete -> The row is only marked as dead, no new version is created.
 
-```
+
 #### When will transaction Block & which Transaction will Not Block?
-```
+
 # Transaction will Block.
 1.UPDATE : Row-Level Lock
 2.DELETE : Row-Level Lock
@@ -208,39 +204,33 @@ Multiple transaction can happen with database at the same time without blocking 
 2.INSERT on different Rows
 3.UPDATE on Different Rows
 4.DELETE on Dfferent Rows
-```
+
 
 #### If we want 100% non-blocking reads use below isolation levels, We can manage It by using Isolation Levels:
 - Postgresql Support | Read Committed (default Level) | Repeatable Read | Serializable.
 
 
 - SERIALIZABLE
-```
 SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
-```
 
-```
 - SERIALIZABLE gurantees that transaction will execute in a way as if they were executed one by one sequentlly, even id they actually run concurently.
 - Postgresql creates snapshots of the database at the moment the transaction starts.
 - transaction reads only the snapshot data.
 - It will not see any changes made by other concurrent transaction until it commits.
 - If two transaction try to modify the same row or related data, one transaction will autimatically abort with an error: "could not serialize access due to concurrent update".
-```
 ---
 - Read Commited (Default level)
-```
+
 SET TRANSACTION ISOLATION LEVEL Read Committed;
-```
-```
+
 - Each query sees only data that was commited before the query started.
 - Uncommitted changes from other transactions are not visible.
 - Non-repeatable reads are possible.
-```
+
 - Repeatable Read
-```
+
 SET TRANSACTION ISOLATION LEVEL Repeatable Reads;
-```
-```
+
 - All queries in the same transaction see a snapshot of the database taken when the transaction started.
 - No other transaction's changes are visible during the transaction.
 - phantom reads are possible
@@ -248,74 +238,9 @@ SET TRANSACTION ISOLATION LEVEL Repeatable Reads;
 ---
 ---
 
-# MVCC (Multi-Version Concurency Control)
-
-```
-Multi-version Concurency control allows multiple transactions to take place simultaneously while maintaining data consistency and isolation.
-Multiple transaction can happen with database at the same time without blocking each other. It maintains multiple versions of rows.
-- PostgreSQL support three columns internally to track rows versions (Xmin, Xmax, Xid).
-- When transaction starts, PostgreSQL assigns a Transaction ID (XID) to that transaction.
-- When transaction updated or Deleted postgresql assigns a transaction Id to (Xmax),
-- When transaction inserted postgresql assigns a transaction id to (Xmin).
-
-1.Starts transaction -> Assigns XID
-2.Read Data -> sees only committed rows before its XID.
-3.Modify Data -> Creates a new version (tuple) of the row with updated data & old version is marked as dead both versions arepresent until the vacuum process cleans up the dead row.
-4.Commit Transaction -> New row version becomes visible.
-5.RollBack Transaction -> New row version is discarded.
-6.Delete -> The row is only marked as dead, no new version is created.
-
-```
-#### When will transaction Block & which Transaction will Not Block?
-```
-# Transaction will Block.
-1.UPDATE : Row-Level Lock
-2.DELETE : Row-Level Lock
---------------------------------
-# Transaction Will not Block.
-1.SELECT : Reads older version
-2.INSERT on different Rows
-3.UPDATE on Different Rows
-4.DELETE on Dfferent Rows
-```
-
-#### If we want 100% non-blocking reads use below isolation levels, We can manage It by using Isolation Levels:
-- Postgresql Support | Read Committed (default Level) | Repeatable Read | Serializable.
-
-
-- SERIALIZABLE
-```
-SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
-```
-
-```
-- SERIALIZABLE gurantees that transaction will execute in a way as if they were executed one by one sequentlly, even id they actually run concurently.
-- Postgresql creates snapshots of the database at the moment the transaction starts.
-- transaction reads only the snapshot data.
-- It will not see any changes made by other concurrent transaction until it commits.
-- If two transaction try to modify the same row or related data, one transaction will autimatically abort with an error: "could not serialize access due to concurrent update".
-```
----
-- Read Commited (Default level)
-```
-SET TRANSACTION ISOLATION LEVEL Read Committed;
-```
-```
-- Each query sees only data that was commited before the query started.
-- Uncommitted changes from other transactions are not visible.
-- Non-repeatable reads are possible.
-```
-- Repeatable Read
-```
-SET TRANSACTION ISOLATION LEVEL Repeatable Reads;
-```
-```
-- All queries in the same transaction see a snapshot of the database taken when the transaction started.
-- No other transaction's changes are visible during the transaction.
-- phantom reads are possible
-```
 # Pg-catalog
 
+```
 PostgreSQL maintains several system catalogs that store metadata about databases, tables, indexes, functions, and more. Below is a list of key system catalogs and their descriptions.
 
 ## Catalog List
@@ -813,6 +738,4 @@ For more details, visit the [PostgreSQL System Catalogs Documentation](https://w
 |------------|------|-------------|
 | umuser     | oid  | Local role being mapped |
 | umserver   | oid  | Foreign server containing the mapping |
-
-
-
+```
